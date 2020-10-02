@@ -12,8 +12,8 @@ def parse_rate(text):
         return Decimal(text).quantize(Decimal('1.00'))
 
     try:
-        # leave only the last 2 digits after the last .
-        text = text.replace('.' , '').replace(',','.')
+        # leave only the last 2 digits after the last . 
+        text = text.replace('.' , '').replace(',','.') #
         return Decimal(text)
     except Exception as e:
         print(f'{e}')
