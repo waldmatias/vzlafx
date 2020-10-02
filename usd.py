@@ -9,7 +9,7 @@ import re
 
 def parse_rate(text):    
     if type(text) is float:
-        return Context(prec=2).create_decimal_from_float(text)
+        return Decimal(text).quantize(Decimal('1.00'))
 
     try:
         # leave only the last 2 digits after the last .
