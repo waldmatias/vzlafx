@@ -10,7 +10,10 @@ This is a quick-and-dirty code sample for webscraping sites using current techno
 Technology Stack
 ----------------
 Python 3.x
+
 BeautifulSoup 4.x
+
 Regular Expressions
+
 JSON
 
