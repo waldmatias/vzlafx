@@ -3,15 +3,16 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from datetime import datetime
 import json
-from decimal import Decimal
+from decimal import Decimal, Context
 from statistics import mean
 import re
 
 def parse_rate(text):    
     if type(text) is float:
-        return Decimal(text)
+        return Context(prec=2).create_decimal_from_float(text)
 
     try:
+        # leave only the last 2 digits after the last .
         text = text.replace('.' , '').replace(',','.')
         return Decimal(text)
     except Exception as e:
