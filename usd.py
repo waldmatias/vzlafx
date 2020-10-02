@@ -22,7 +22,7 @@ def parse_rate(text):
 def fetch_ig_rate():    
     url = 'https://www.instagram.com/enparalelovzla'
     html = urlopen(url).read()
-    regex = r'((../../....) (2020) (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*))'
+    regex = r'((../../....) ([0-9/]*2020) (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*))'
     m = re.search(regex, html.decode('utf-8').strip())
     str_m = m.group(0)
     prefix = 'Bs.'
