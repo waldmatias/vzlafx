@@ -3,33 +3,40 @@ from urllib.request import urlopen
 from bs4 import BeautifulSoup
 from datetime import datetime
 import json
-from decimal import Decimal, Context
+from decimal import Decimal as D, Context
 from statistics import mean
 import re
 
+
 def parse_rate(text):    
     if type(text) is float:
-        return Decimal(text).quantize(Decimal('1.00'))
+        return D(text).quantize(D('1.00'))
 
     try:
         # leave only the last 2 digits after the last . 
         text = text.replace('.' , '').replace(',','.') #
-        return Decimal(text)
+        return D(text)
     except Exception as e:
         print(f'{e}')
 
 
-def fetch_ig_rate():    
-    url = 'https://www.instagram.com/enparalelovzla'
-    html = urlopen(url).read()
-    #regex = r'((../../....) ([0-9/]*2020) (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*))'
+def fetch_ig_rate(username):    
+    html = urlopen(f'https://www.instagram.com/{username}').read()
+    html_str = html.decode('utf-8').strip()
+    # check if html is actually from the userpage, and not a login or other page.
+    # m = re.findall('login', html_str) => if content is there, then len(m) == 1, else len(m) > 1
+    # regex = r'((../../....) ([0-9/]*2020) (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*))'
     regex = r'(2020) (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*)'
-    m = re.search(regex, html.decode('utf-8').strip())
-    str_m = m.group(0)
-    prefix = 'Bs.'
-    start_pos = str_m.index(prefix) + len(prefix)
-    rate = str_m[start_pos:].strip()
-    return parse_rate(rate)
+    try:
+        m = re.search(regex, html_str)
+        str_m = m.group(0)
+        prefix = 'Bs.'
+        start_pos = str_m.index(prefix) + len(prefix)
+        rate = str_m[start_pos:].strip()
+        return parse_rate(rate)
+    except:
+        print(f'!!! Could not fetch rate from instagram. Is user: {username} available or reachable?')
+        return D()
 
 
 def fetch_bcv_rate():
@@ -58,10 +65,11 @@ if (__name__ == '__main__'):
     rates = {   
                 'bcv' : fetch_bcv_rate(), 
                 'dolartoday': fetch_dolartoday_rate(), 
-                'enparalelovzla' : fetch_ig_rate() 
+                'enparalelovzla' : fetch_ig_rate('enparalelovzla') 
             }
 
     for source, rate in rates.items():
         print(f'{source:<15} : {rate:<10,.2f}')
     
-    print(f'{"Mean / Promedio":<15} : {mean(rates.values()):<10,.2f}')
+    print(f'{"Mean / Promedio":<15} : {mean([v for v in rates.values() if v > 0]):<10,.2f}')
+    
