@@ -51,7 +51,9 @@ def fetch_dolartoday_rate():
 
 
 if (__name__ == '__main__'):
-    print(f'{"Fetch Date/Time":<15} : {datetime.now()}')
+    date = f'{datetime.now():%d/%m/%Y %H:%M}' 
+    print(date)
+    print(f'{"-" * len(date)}')
 
     rates = {   
                 'bcv' : fetch_bcv_rate(), 
