@@ -39,9 +39,11 @@ def fetch_ig_rate(username):
         # check if html is actually from the userpage, and not a login or other page.
         # m = re.findall('login', html_str) => if content is there, then len(m) == 1, else len(m) > 1
         # regex = r'((../../....) ([0-9/]*2020) (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*))'
-        regex = r'(2020) (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*)'
+        # regex = r'2020 (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*)'
+        regex = r'(AM|PM) PROMEDI(C|O) Bs. ([0-9.,]*)'
         m = re.search(regex, html_contents)
         str_m = m.group(0)
+        # print(f'str_m {str_m}')
         prefix = 'Bs.'
         start_pos = str_m.index(prefix) + len(prefix)
         rate = str_m[start_pos:].strip()
