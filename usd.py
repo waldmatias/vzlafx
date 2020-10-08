@@ -30,16 +30,18 @@ def open_rate_source(source):
     except: 
         return None
 
+
+def string_rateparser(start_prefix, string):
+    start_pos = string.index(start_prefix) + len(start_prefix)
+    return string[start_pos:].strip()
+
+
 def enparalelovzla_rateparser(text):
-    prefix = 'Bs.'
-    start_pos = text.index(prefix) + len(prefix)
-    return text[start_pos:].strip()
+    return string_rateparser('Bs. ', text) 
 
 
 def bcv_rateparser(text):
-    prefix = 'USD'
-    start_pos = text.index(prefix) + len(prefix)
-    return text[start_pos:].strip()
+    return string_rateparser('USD', text) 
 
 
 def fetch_ig_rate(username, regex, rateparser):    
@@ -47,13 +49,7 @@ def fetch_ig_rate(username, regex, rateparser):
     
     try:
         html_contents = source.read().decode('utf-8').strip()
-        # check if html is actually from the userpage, and not a login or other page.
-        # m = re.findall('login', html_str) => if content is there, then len(m) == 1, else len(m) > 1
-        # regex = r'((../../....) ([0-9/]*2020) (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*))'
-        # regex = r'2020 (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*)'
-        # regex = r'(AM|PM) PROMEDI(C|O) Bs. ([0-9.,]*)'
         m = re.search(regex, html_contents)
-        # print(f'str_m {str_m}')
         return parse_rate(rateparser(m.group(0)))
     except Exception as e:
         print(f'!!! could not fetch rate from instagram. Is user: {username} available or reachable?')
