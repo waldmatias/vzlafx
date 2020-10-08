@@ -30,8 +30,19 @@ def open_rate_source(source):
     except: 
         return None
 
+def enparalelovzla_rateparser(text):
+    prefix = 'Bs.'
+    start_pos = text.index(prefix) + len(prefix)
+    return text[start_pos:].strip()
 
-def fetch_ig_rate(username):    
+
+def bcv_rateparser(text):
+    prefix = 'USD'
+    start_pos = text.index(prefix) + len(prefix)
+    return text[start_pos:].strip()
+
+
+def fetch_ig_rate(username, regex, rateparser):    
     source = open_rate_source(f'https://www.instagram.com/{username}')
     
     try:
@@ -40,16 +51,13 @@ def fetch_ig_rate(username):
         # m = re.findall('login', html_str) => if content is there, then len(m) == 1, else len(m) > 1
         # regex = r'((../../....) ([0-9/]*2020) (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*))'
         # regex = r'2020 (..:..) (AM|PM) (PROMEDI(C|O) Bs. )([0-9.,]*)'
-        regex = r'(AM|PM) PROMEDI(C|O) Bs. ([0-9.,]*)'
+        # regex = r'(AM|PM) PROMEDI(C|O) Bs. ([0-9.,]*)'
         m = re.search(regex, html_contents)
-        str_m = m.group(0)
         # print(f'str_m {str_m}')
-        prefix = 'Bs.'
-        start_pos = str_m.index(prefix) + len(prefix)
-        rate = str_m[start_pos:].strip()
-        return parse_rate(rate)
-    except:
+        return parse_rate(rateparser(m.group(0)))
+    except Exception as e:
         print(f'!!! could not fetch rate from instagram. Is user: {username} available or reachable?')
+        print(f'Error: {e}')
         return D()
 
 
@@ -60,7 +68,12 @@ def fetch_bcv_rate():
         rate = soup.find('',{'id':'dolar'}).strong.text.strip()
         return parse_rate(rate)
     else: 
-        return D()
+        # try instagram?
+        try:
+            print(f'!!! trying instagram')
+            return fetch_ig_rate('bcv.org.ve', r'USD ([0-9.,]*)', bcv_rateparser)
+        except: 
+            D()
 
 
 def fetch_dolartoday_url_js():
@@ -86,7 +99,7 @@ if (__name__ == '__main__'):
     rates = {   
                 'bcv' : fetch_bcv_rate(), 
                 'dolartoday': fetch_dolartoday_rate(), 
-                'enparalelovzla' : fetch_ig_rate('enparalelovzla') 
+                'enparalelovzla' : fetch_ig_rate('enparalelovzla', r'(AM|PM) PROMEDI(C|O) Bs. ([0-9.,]*)', enparalelovzla_rateparser) 
             }
 
     for source, rate in rates.items():
