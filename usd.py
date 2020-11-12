@@ -87,6 +87,11 @@ def fetch_dolartoday_rate():
         return D()
 
 
+def diff_rate(lower, higher):
+    diff = higher-lower
+    return (diff, diff/lower*100)
+
+
 if (__name__ == '__main__'):
     date = f'{datetime.now():%d/%m/%Y %H:%M}' 
     print(date)
@@ -101,5 +106,18 @@ if (__name__ == '__main__'):
     for source, rate in rates.items():
         print(f'{source:<15} : {rate:<10,.2f}')
     
-    print(f'{"Mean / Promedio":<15} : {mean([v for v in rates.values() if v > 0]):<10,.2f}')
+    print(f'\n{"Mean / Promedio":<15} : {mean([v for v in rates.values() if v > 0]):<10,.2f}\n')
     
+    bcv_diff, pct_diff  = diff_rate(rates["bcv"], rates["dolartoday"])
+    print(f'{"dolartoday-bcv":<25}: {bcv_diff:,.2f} ({pct_diff:.2f}%)')
+
+    bcv_diff, pct_diff  = diff_rate(rates["bcv"], rates["enparalelovzla"])
+    print(f'{"enparalelovzla-bcv":<25}: {bcv_diff:,.2f} ({pct_diff:.2f}%)')
+    
+    rates = [('dolartoday',rates['dolartoday']), ('enparalelovzla', rates['enparalelovzla'])]
+    max_rate = max(rates, key=lambda rate: rate[1])
+    min_rate = min(rates, key=lambda rate: rate[1])
+
+    rate_diff, pct_diff = diff_rate(min_rate[1], max_rate[1])
+    print(f'{max_rate[0]}-{min_rate[0]}: {rate_diff:,.2f} ({pct_diff:.2f}%)\n')
+
