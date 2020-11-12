@@ -93,9 +93,8 @@ def diff_rate(lower, higher):
 
 
 if (__name__ == '__main__'):
-    date = f'{datetime.now():%d/%m/%Y %H:%M}' 
-    print(date)
-    print(f'{"-" * len(date)}')
+    print(f'{datetime.now():%d/%m/%Y %H:%M}\n')
+    #print(f'{"-" * len(date)}')
 
     rates = {   
                 'bcv' : fetch_bcv_rate(), 
