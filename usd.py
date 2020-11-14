@@ -14,8 +14,12 @@ def parse_rate(text):
         return D(text).quantize(D('1.00'))
 
     try:
-        # leave only the last 2 digits after the last . 
-        text = text.replace('.' , '').replace(',','.') #
+        # leave only the last 2 digits after the last .
+        if ',' in text and '.' in text:
+            text = text.replace('.' , '').replace(',','.') 
+        elif ',' not in text and '.' in text and text.count('.') > 1:
+            text = text.replace('.', '',  text.count('.')-1)
+
         return D(text)
     except Exception as e:
         print(f'{e}')
@@ -50,7 +54,9 @@ def fetch_ig_rate(username, regex, rateparser):
     try:
         html_contents = source.read().decode('utf-8').strip()
         m = re.search(regex, html_contents)
-        return parse_rate(rateparser(m.group(0)))
+        rate = parse_rate(rateparser(m.group(0)))
+        #print(f'{username}:{rate}')
+        return rate
     except Exception as e:
         print(f'!!! could not fetch rate from instagram. Is user: {username} available or reachable?')
         print(f'Error: {e}')
