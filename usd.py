@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from urllib.request import urlopen
+from urllib.request import urlopen, Request
 from urllib.error import HTTPError
 from bs4 import BeautifulSoup
 from datetime import datetime
@@ -25,11 +25,13 @@ def parse_rate(text):
         print(f'{e}')
 
 
-def open_rate_source(source):
+def open_rate_source(url):
     try:
-        return urlopen(f'{source}')
+        source = Request(url, headers={'User-Agent' : "Mozilla/5.0 (X11; U; Linux i686) Gecko/20071127 Firefox/2.0.0.11"})
+        return urlopen(source)
     except HTTPError as e: 
-        print(f'!!! could not open source: "{source}". Error: {e.code} {e.reason}')
+        print(f'Http error opening {source}. Error: {e.code} {e.reason}')
+        print(f'Http error, headers: {e.headers}')
         return None
     except: 
         return None
@@ -50,13 +52,18 @@ def bcv_rateparser(text):
 
 def fetch_ig_rate(username, regex, rateparser):    
     source = open_rate_source(f'https://www.instagram.com/{username}')
-    
+    if source is None: 
+        return D()
+
     try:
         html_contents = source.read().decode('utf-8').strip()
         m = re.search(regex, html_contents)
         rate = parse_rate(rateparser(m.group(0)))
         #print(f'{username}:{rate}')
         return rate
+    except HTTPError as e:
+        print(f'{e}')
+        return D()
     except Exception as e:
         print(f'!!! could not fetch rate from instagram. Is user: {username} available or reachable?')
         print(f'Error: {e}')
@@ -100,7 +107,6 @@ def diff_rate(lower, higher):
 
 if (__name__ == '__main__'):
     print(f'{datetime.now():%d/%m/%Y %H:%M}\n')
-    #print(f'{"-" * len(date)}')
 
     rates = {   
                 'bcv' : fetch_bcv_rate(), 
